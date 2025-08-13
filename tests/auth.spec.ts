@@ -30,9 +30,11 @@ test("TC3-Intento de login con campos vacíos", async ({ page }) => {
   paginaLogin = new PaginaLogin(page);
 
   await paginaLogin.visitarPaginaLogin();
+  await expect(paginaLogin.emailInput).toBeEmpty();
   await paginaLogin.hacerClickEnBotonIniciarSesion();
+  await expect(paginaLogin.emailInput).toHaveJSProperty("validationMessage", "Please fill out this field.");
   await page.waitForTimeout(5000);
-  //await expect(page).toHaveURL("http://localhost:3000/login");
+  await expect(page).toHaveURL("http://localhost:3000/login");
 });
 
 test("TC4-Intento de Login con Email sin Contraseña", async ({ page }) => {
@@ -41,8 +43,9 @@ test("TC4-Intento de Login con Email sin Contraseña", async ({ page }) => {
   await paginaLogin.visitarPaginaLogin();
   await paginaLogin.completarFormularioLogin("vivianaisabel85@example.com", "");
   await paginaLogin.hacerClickEnBotonIniciarSesion();
+  await expect(paginaLogin.contraseñaInput).toHaveJSProperty("validationMessage", "Please fill out this field.");
   await page.waitForTimeout(5000);
-  //await expect(page).toHaveURL("http://localhost:3000/login");
+  await expect(page).toHaveURL("http://localhost:3000/login");
 });
 
 test("TC5-Intento de Login con formato de email incorrecto", async ({ page }) => {
@@ -51,8 +54,12 @@ test("TC5-Intento de Login con formato de email incorrecto", async ({ page }) =>
   await paginaLogin.visitarPaginaLogin();
   await paginaLogin.completarFormularioLogin("testinvalido", "125986");
   await paginaLogin.hacerClickEnBotonIniciarSesion();
+
+  const message = await paginaLogin.emailInput.evaluate((el) => (el as HTMLInputElement).validationMessage);
+  expect(message).toContain("Please include an '@' in the email address.");
+  //await expect(paginaLogin.contraseñaInput).toHaveJSProperty("validationMessage", "Please include an '@' in the email address.'asdasdasd' is missing an '@'.");
   await page.waitForTimeout(5000);
-  //await expect(page).toHaveURL("http://localhost:3000/login");
+  await expect(page).toHaveURL("http://localhost:3000/login");
 });
 
 test("TC6-Verificación del enlace de registro", async ({ page }) => {
